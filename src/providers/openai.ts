@@ -5,6 +5,7 @@ import {
   ToolDefinition,
   LLMProvider,
   LLMResponse,
+  StreamChunk,
 } from "../core/types.js";
 
 export class OpenAIProvider implements LLMProvider {
@@ -24,6 +25,9 @@ export class OpenAIProvider implements LLMProvider {
     messages: ChatMessage[],
     tools?: ToolDefinition[],
   ): Promise<LLMResponse> {
+
+    console.dir(messages, {depth: null})
+    console.dir(tools, {depth: null})
     const response = await this.client.chat.completions.create({
       model: this.model,
       messages,
@@ -56,5 +60,39 @@ export class OpenAIProvider implements LLMProvider {
     return {
       text: msg.content || "",
     };
+  }
+
+  async *stream(
+    messages: ChatMessage[],
+    tools?: ToolDefinition[]
+  ): AsyncGenerator<StreamChunk>{
+
+    console.dir(messages, {depth: null})
+    console.dir(tools, {depth: null})
+
+    const stream = await this.client.chat.completions.create({
+        model: this.model,
+        messages,
+        stream: true,
+        tools: tools?.map(tool =>({
+            type: "function",
+            function: {
+                name: tool.name,
+                description: tool.description,
+                parameters: tool.input_schema,
+            },
+        }))
+    })
+
+    for await (const chunk of stream){
+        const delta = chunk.choices[0]?.delta;
+
+        if(delta?.content){
+            yield {
+                type: "text",
+                content: delta.content,
+            }
+        }
+    }
   }
 }

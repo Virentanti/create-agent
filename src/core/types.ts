@@ -1,12 +1,35 @@
 export type Role =
     | "system"
     | "user"
+    | "tool"
     | "assistant";
 
-export interface ChatMessage {
-    role: Role;
-    content: string;
+export interface BaseMessage {
+    content: string
 }
+
+export interface UserMessage extends BaseMessage{
+    role: "user"
+}
+
+export interface AssistantMessage extends BaseMessage{
+    role: "assistant"
+}
+
+export interface SystemMessage extends BaseMessage{
+    role: "system"
+}
+
+export interface ToolMessage extends BaseMessage{
+    role: "tool";
+    tool_call_id: string;
+}
+
+export type ChatMessage = 
+    | UserMessage
+    | AssistantMessage
+    | SystemMessage
+    | ToolMessage
 
 export interface ToolDefinition {
     name: string;
@@ -46,4 +69,25 @@ export interface AgentTool{
     handler: (
         args: Record< string, unknown>
     ) => Promise<string>;
+}
+
+export interface StreamChunk {
+
+    type: 
+        | "text"
+        | "tool_call";
+
+    content: string;
+}
+
+export interface LLMProvider {
+    generate(
+        messages: ChatMessage[],
+        tools?: ToolDefinition[],
+    ): Promise<LLMResponse>;
+
+    stream(
+        messages: ChatMessage[],
+        tools?: ToolDefinition[],
+    ): AsyncGenerator<StreamChunk>;
 }

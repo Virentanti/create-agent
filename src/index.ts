@@ -11,6 +11,7 @@ import { MCPClient } from "./mcp/client.js";
 import { loadMCPTools } from "./mcp/transport.js";
 import { AgentRuntime } from "./core/runtime.js";
 import { loadTools } from "./tools/load-tools.js";
+import { loadBuiltinTools } from "./tools/builtin.js";
 
 const config = await loadConfig();
 
@@ -23,11 +24,16 @@ const mcp = new MCPClient();
 await mcp.connect(config.mcp.server);
 
 const tools = await loadTools();
-// const tools = await loadMCPTools(mcp);
+const builtinTools = loadBuiltinTools();
+
+for (const tool of builtinTools) {
+  registry.register(tool);
+}
 
 for (const tool of tools) {
   registry.register(tool);
 }
+
 
 const runtime = new AgentRuntime(provider, registry);
 
@@ -42,10 +48,9 @@ while (true) {
   const query = await rl.question("\nQuery: ");
 
   if (query.toLowerCase() === "quit") {
-    break;
+    rl.close();
+    process.exit(0);
   }
 
-  const result = await runtime.run(query);
-
-  console.log("\n" + result);
+  await runtime.run(query);
 }

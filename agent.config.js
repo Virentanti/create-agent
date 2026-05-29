@@ -4,7 +4,7 @@ export default {
   provider: {
     type: "openrouter",
     apiKey: env.OPENROUTER_API_KEY,
-    model: "deepseek/deepseek-chat-v3-0324",
+    model: "openrouter/owl-alpha",
     baseURL: "https://openrouter.ai/api/v1",
   },
 

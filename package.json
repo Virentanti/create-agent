@@ -18,9 +18,10 @@
     "build"
   ],
   "scripts": {
-    "dev": "tsx src/index.ts",
+    "dev": "tsx watch src/index.ts",
     "build": "tsc && chmod +x build/cli/index.js",
-    "start": "node build/index.js"
+    "start": "node build/index.js",
+    "rebuild": "tsc && chmod +x build/cli/index.js && npm link && create-agent start"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",

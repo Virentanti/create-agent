@@ -11,7 +11,7 @@ export async function loadTools(): Promise<AgentTool[]> {
   const tools: AgentTool[] = [];
 
   for (const file of files) {
-    if (!file.endsWith(".js")) {
+    if (!file.endsWith(".js") && !file.endsWith(".ts")) {
       continue;
     }
 
